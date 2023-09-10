@@ -2,6 +2,7 @@
 
 class Program
 {
+    [STAThread]
     static void Main(string[] args)
     {
         Car carOne = new() { Brand = "BMW", Model = "M5", Price = 2_500_000.0 };
@@ -18,21 +19,24 @@ class Program
         try
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Excel files (*.xlsx)|*.xlsx";
+            saveFileDialog.DefaultExt = "xlsx";
+            saveFileDialog.AddExtension = true;
             saveFileDialog.InitialDirectory = Application.StartupPath;
             StreamWriter streamWriter;
 
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
                 streamWriter = new StreamWriter(saveFileDialog.FileName);
+
+                ExcelDataWriter writer = new();
+                string path = streamWriter.ToString();
+                writer.Write(cars, path);
             }
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex.StackTrace);
         }
-
-        ExcelDataWriter writer = new();
-        string path = @"D:\NewFile.xlsx";
-        writer.Write(cars, path);
     }
 }

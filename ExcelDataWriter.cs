@@ -1,12 +1,14 @@
 ﻿using Microsoft.Office.Interop.Excel;
 using System.Runtime.InteropServices;
+using Application = Microsoft.Office.Interop.Excel.Application;
+using Excel = Microsoft.Office.Interop.Excel;
 using Range = Microsoft.Office.Interop.Excel.Range;
 
 namespace ExcelFileWriter
 {
     internal class ExcelDataWriter : DataWriter
     {
-        private readonly Application excelApplication;
+        private readonly Excel.Application excelApplication;
         private readonly object missValue;
 
         public ExcelDataWriter()
