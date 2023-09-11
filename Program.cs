@@ -2,6 +2,9 @@
 
 class Program
 {
+    private const string saveDialogMessage = "Excel files (*.xlsx)|*.xlsx";
+    private const string saveDialogExtensions = "xlsx";
+
     [STAThread]
     static void Main(string[] args)
     {
@@ -18,25 +21,45 @@ class Program
 
         try
         {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "Excel files (*.xlsx)|*.xlsx";
-            saveFileDialog.DefaultExt = "xlsx";
-            saveFileDialog.AddExtension = true;
-            saveFileDialog.InitialDirectory = Application.StartupPath;
-            StreamWriter streamWriter;
+            string path = GetPathFromSaveFileDialog();
 
-            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            if (string.IsNullOrEmpty(path))
             {
-                streamWriter = new StreamWriter(saveFileDialog.FileName);
-
+                MessageBox.Show("Не выбрано имя файла!");
+            }
+            else
+            {
                 ExcelDataWriter writer = new();
-                string path = streamWriter.ToString();
                 writer.Write(cars, path);
             }
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex.StackTrace);
+        }
+    }
+
+    /// <summary>
+    /// Вызов стандартного окна сохранения файла Windows.
+    /// Значение поля OverwritePrompt устанавливается в false для избежания "дублирования" запроса о замене файла - стандартным окном Windows и окном Excel
+    /// </summary>
+    /// <returns></returns>
+    private static string GetPathFromSaveFileDialog()
+    {
+        SaveFileDialog saveFileDialog = new SaveFileDialog();
+        saveFileDialog.Filter = saveDialogMessage;
+        saveFileDialog.DefaultExt = saveDialogExtensions;
+        saveFileDialog.AddExtension = true;
+        saveFileDialog.OverwritePrompt = false;
+        saveFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+        if (saveFileDialog.ShowDialog() == DialogResult.OK)
+        {
+            return saveFileDialog.FileName;
+        }
+        else
+        {
+            return string.Empty;
         }
     }
 }
