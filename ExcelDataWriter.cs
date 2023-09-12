@@ -8,12 +8,11 @@ namespace ExcelFileWriter
 {
     internal class ExcelDataWriter : DataWriter
     {
-        private readonly Excel.Application excelApplication;
+        private Excel.Application excelApplication;
         private readonly object missValue;
 
         public ExcelDataWriter()
         {
-            excelApplication = new Application();
             missValue = System.Reflection.Missing.Value;
         }
 
@@ -29,12 +28,14 @@ namespace ExcelFileWriter
         /// <param name="cars"></param>
         public void Write(List<Car> cars, string path)
         {
+            excelApplication = new Application();
             Workbook excelWorkbook = excelApplication.Workbooks.Add();
             Worksheet excelWorksheet = excelWorkbook.Worksheets[1];
 
             try
             {
                 SetTableHeaders(excelWorksheet);
+                SetHeaderStyle(excelWorksheet);
                 
                 for (int i = 0; i < cars.Count; i++)
                 {
@@ -60,6 +61,10 @@ namespace ExcelFileWriter
             {
                 excelWorkbook.Close();
                 excelApplication.Quit();
+                Marshal.ReleaseComObject(excelWorksheet);
+                Marshal.ReleaseComObject(excelWorkbook);
+                Marshal.ReleaseComObject(excelApplication);
+                GC.Collect();
             }
         }
 
@@ -72,6 +77,11 @@ namespace ExcelFileWriter
             worksheet.Range["A1"].Value = "Car Brand";
             worksheet.Range["B1"].Value = "Car Model";
             worksheet.Range["C1"].Value = "Car Price";
+        }
+
+        private void SetHeaderStyle(Worksheet worksheet)
+        {
+            worksheet.get_Range("A1", "C1").Style.Font.Size = 20;
         }
     }
 }
